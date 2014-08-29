@@ -742,7 +742,9 @@ Store = Ember.Object.extend({
   hasRecordForId: function(typeName, inputId) {
     var type = this.modelFor(typeName);
     var id = coerceId(inputId);
-    return !!this.typeMapFor(type).idToRecord[id];
+
+    var idToRecord = !!this.typeMapFor(type).idToRecord;
+    return !!idToRecord[id] || (id === 'me' && Ember.keys(idToRecord).length > 0) || !!idToRecord['me'];
   },
 
   /**
@@ -759,9 +761,15 @@ Store = Ember.Object.extend({
     var type = this.modelFor(typeName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(type).idToRecord;
-    var record = idToRecord[id];
+    var record = idToRecord[id] || idToRecord['me'];
 
-    if (!record || !idToRecord[id]) {
+    if (!record) {
+      if (id === 'me') {
+        var ids = Ember.keys(idToRecord);
+        if (ids.length > 0) {
+          return idToRecord[ids[0]];
+        }
+      }
       record = this.buildRecord(type, id);
     }
 
