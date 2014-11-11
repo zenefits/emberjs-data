@@ -743,7 +743,7 @@ Store = Ember.Object.extend({
     var type = this.modelFor(typeName);
     var id = coerceId(inputId);
 
-    var idToRecord = !!this.typeMapFor(type).idToRecord;
+    var idToRecord = this.typeMapFor(type).idToRecord;
     return !!idToRecord[id] || (id === 'me' && Ember.keys(idToRecord).length > 0) || !!idToRecord['me'];
   },
 
