@@ -122,10 +122,10 @@ BelongsToRelationship.prototype.fetchLink = function() {
 
 BelongsToRelationship.prototype.getRecord = function() {
   //TODO(Igor) flushCanonical here once our syncing is not stupid
+  var promise;
+  var self = this;
   if (this.isAsync) {
-    var promise;
     if (this.link){
-      var self = this;
       promise = this.findLink().then(function() {
         return self.findRecord();
       });
@@ -140,6 +140,17 @@ BelongsToRelationship.prototype.getRecord = function() {
   } else {
     // ZN commenting this out so we look at this.inverseRecord.get('id')
     // Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.typeKey + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", this.inverseRecord === null || !this.inverseRecord.get('isEmpty'));
+    // ZN this somewhat undoes https://github.com/emberjs/data/commit/c9825d4a022dadf7f9cf17922dcfb3f228f8af0e#diff-4ab2c23dc29dcfd7e70606b629122dc3
+    // At some point we should really treat our async relationships as async...
+    if (this.inverseRecord === null || this.inverseRecord.get('isEmpty')) {
+      if (this.link){
+        promise = this.findLink().then(function() {
+          return self.findRecord();
+        });
+      } else {
+        promise = this.findRecord();
+      }
+    }
     return this.inverseRecord;
   }
 };
