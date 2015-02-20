@@ -65,7 +65,13 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   flushCanonical: function() {
     //TODO make this smarter, currently its plenty stupid
-    var toSet = this.canonicalState.slice(0);
+
+    // ZN apply patch from https://github.com/emberjs/data/pull/2722/files about this issue: https://github.com/emberjs/data/issues/2666
+    // also be careful about https://github.com/emberjs/data/issues/2795
+    // var toSet = this.canonicalState.slice(0);
+    var toSet = Ember.ArrayPolyfills.filter.call(this.canonicalState, function(record) {
+      return !record.get('isDeleted');
+    });
     //a hack for not removing new records
     //TODO remove once we have proper diffing
     var newRecords = this.currentState.filter(function(record) {
