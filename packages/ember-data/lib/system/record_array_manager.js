@@ -274,7 +274,8 @@ export default Ember.Object.extend({
   }
 });
 
-function values(obj) {
+function values(valuesObj) {
+  var obj = typeof valuesObj == 'undefined' ? {} : valuesObj;
   var result = [];
   var keys = Ember.keys(obj);
 
